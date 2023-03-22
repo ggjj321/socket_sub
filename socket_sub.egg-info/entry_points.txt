@@ -1,0 +1,3 @@
+[console_scripts]
+zed_socket_server = socket_sub.subscriber_member_function:main
+

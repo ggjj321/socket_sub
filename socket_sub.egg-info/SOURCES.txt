@@ -1,0 +1,16 @@
+package.xml
+setup.cfg
+setup.py
+resource/socket_sub
+socket_sub/__init__.py
+socket_sub/subscriber_member_function.py
+socket_sub.egg-info/PKG-INFO
+socket_sub.egg-info/SOURCES.txt
+socket_sub.egg-info/dependency_links.txt
+socket_sub.egg-info/entry_points.txt
+socket_sub.egg-info/requires.txt
+socket_sub.egg-info/top_level.txt
+socket_sub.egg-info/zip-safe
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py
