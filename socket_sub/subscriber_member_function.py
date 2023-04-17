@@ -15,7 +15,7 @@
 import rclpy
 from rclpy.node import Node
 
-from std_msgs.msg import String
+from zed_interfaces.msg import ObjectsStamped
 import json
 
 import threading
@@ -32,15 +32,23 @@ class MinimalSubscriber(Node):
     def __init__(self):
         super().__init__('minimal_subscriber')
         self.subscription = self.create_subscription(
-            String,
-            "/transfrom_zed2_3dod_to_2d",
+            ObjectsStamped,
+            "/zed2/zed_node/obj_det/objects",
             self.listener_callback,
             1000)
         self.subscription  # prevent unused variable war
+        self.zed2_od_msg = {}
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: ' + msg.data)
-        self.zed2_od_msg = msg.data
+        self.zed2_od_msg = {}
+
+        for obj in msg.objects:
+            if obj.label == "Person":
+                self.zed2_od_msg[obj.label_id] = {
+                    "coordinate" : { "x" : -3 * obj.position[0] - 4, "z" : obj.position[1] * 3},
+                    "action_state" : obj.action_state,
+                }
+        print(self.zed2_od_msg)
     
     def get_zed2_od_msg(self):
         return self.zed2_od_msg
@@ -58,24 +66,14 @@ class SocketHandle(threading.Thread):
         self.get_zed2_od_msg = get_zed2_od_msg
 
     def run(self):
-        self.send_zed_od_data()
+        while 1:
+            self.send_zed_od_data()
+            time.sleep(0.05)
 
     def send_zed_od_data(self):
-        time.sleep(0.5)
-
-        zed2_od_result_array = self.get_zed2_od_msg().split()
-
-        # 2d: 33 7 label: Person label_id: 11
-        # 0   1  2 3      4      5         6
-        zed2_od_result_to_json = {
-            'x' : int(zed2_od_result_array[1]),
-            'y' : int(zed2_od_result_array[2]),
-            'label' : zed2_od_result_array[4],
-            'id' : int(zed2_od_result_array[6])
-        }
-
-        socketio.emit('zed2_od', json.dumps(zed2_od_result_to_json))            
-        self.send_zed_od_data()
+        zed2_od_msg = self.get_zed2_od_msg()
+        socketio.emit('zed2_od', json.dumps(zed2_od_msg))   
+        
 
 def main(args=None):
     rclpy.init(args=args) 
