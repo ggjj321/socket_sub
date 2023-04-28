@@ -44,11 +44,11 @@ class MinimalSubscriber(Node):
 
         for obj in msg.objects:
             if obj.label == "Person":
-                self.zed2_od_msg[obj.label_id] = {
-                    "coordinate" : { "x" : -3 * obj.position[0] - 4, "z" : obj.position[1] * 3},
-                    "action_state" : obj.action_state,
-                }
-        print(self.zed2_od_msg)
+                if obj.position[0] != None and obj.position[1] != None and obj.action_state != None:
+                    self.zed2_od_msg[obj.label_id] = {
+                        "coordinate" : { "x" : -3 * obj.position[0] - 4, "z" : obj.position[1] * 3},
+                        "action_state" : obj.action_state,
+                    }
     
     def get_zed2_od_msg(self):
         return self.zed2_od_msg
